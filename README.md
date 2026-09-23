@@ -3,8 +3,9 @@
 Reads Spanish bank statements in the **AEB Cuaderno 43** format (also called Norma 43 or C43),
 the plain text file most Spanish banks let you download with the account movements.
 
-Work in progress: it reads the movements of the statement, puts each of them in the category
-whose definition it matches, and writes the result as a CSV. The Excel part is still to come.
+It reads the movements of the statement, puts each of them in the category whose definition it
+matches, adds up the amounts of every month and category, and writes the result as a CSV ready
+to be opened in Excel.
 
 ### Usage
 

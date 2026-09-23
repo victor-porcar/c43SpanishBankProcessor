@@ -1,8 +1,7 @@
 package com.github.victormpcmun.c43spanishbankprocessor.model;
 
 /**
- * One movement of the statement, ready to become a row of the Excel file: the whole line as
- * plain text plus the few values taken out of it.
+ * One movement of the statement: the whole line as plain text plus the few values taken out of it.
  */
 public class MovementLine {
 
