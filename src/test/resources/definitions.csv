@@ -1,0 +1,9 @@
+Alimentacion;Supermercado;*MERCADONA*|*CARREFOUR*
+"Ocio;y cultura";Restaurantes;*CAFETERIA*
+Nomina;Empresa;*Concepto 1:NÓMINA*
+
+SinDefinicion;Subcategoria;
+;Subcategoria;*ALGO*
+SoloUnaColumna
+Comillas;"Dice ""hola""";*hola*
+Vivienda;Alquiler;*ALQUILER*;columna extra
