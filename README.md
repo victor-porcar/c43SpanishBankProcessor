@@ -9,8 +9,11 @@ whose definition it matches, and writes the result as a CSV. The Excel part is s
 ### Usage
 
 ```
-java -jar target/c43SpanishBankProcessor.jar <C43_FILE> <RESULT_PATH> <DEFINITION_PATH> <LOG_PATH> <DEFAULT_CATEGORY>
+java -jar dist/c43SpanishBankProcessor.jar <C43_FILE> <RESULT_PATH> <DEFINITION_PATH> <LOG_PATH> <DEFAULT_CATEGORY>
 ```
+
+The jar is in the repository, so it can be used right after cloning or pulling, without
+building the project.
 
 - **C43_FILE** is the bank statement to read.
 - **RESULT_PATH** is the CSV the result is written to (see below).
@@ -130,6 +133,9 @@ Requires Java 17 and Maven. It opens directly in IntelliJ as a Maven project.
 ```
 mvn clean package
 ```
+
+It runs the tests and leaves the executable jar, with all its dependencies inside, in `dist`.
+`mvn clean` does not empty `dist`, so the jar of the last successful build stays there.
 
 ### Design
 

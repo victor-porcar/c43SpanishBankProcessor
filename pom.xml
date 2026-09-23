@@ -44,7 +44,8 @@
                 <version>3.5.2</version>
             </plugin>
 
-            <!-- Builds a single executable jar with all dependencies inside -->
+            <!-- Builds a single executable jar with all dependencies inside, left in /dist so it
+                 can be used (and pulled from the repository) without building the project -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -54,6 +55,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <appendAssemblyId>false</appendAssemblyId>
+                    <outputDirectory>${project.basedir}/dist</outputDirectory>
                     <archive>
                         <manifest>
                             <mainClass>${main.class}</mainClass>
