@@ -22,14 +22,21 @@ java -jar target/c43SpanishBankProcessor.jar <C43_FILE> <RESULT_PATH> <DEFINITIO
 Both files are written on every run, replacing what was there before, and their missing
 directories are created.
 
-It builds a `MovementLine` for every movement of the statement and prints its four fields:
+The console says only how it went, and the exit code tells the same to whoever called it:
+
+| Console | Exit code | What happened |
+|---|---|---|
+| `SUCCESFUL EXECUTION` | `0` | The result file and the log were written |
+| `ERROR -> see logs` | `1` | Something failed; the exception and its stack trace are in the log file |
+| The problem itself | `2` | The arguments are wrong, so there is no log file to write to |
+
+Internally it builds a `MovementLine` for every movement of the statement, with four fields:
 
 ```
-Movement 1
-  year      : 2026
-  month     : SEPTIEMBRE
-  importe   : 45.99
-  plainLine : Registro:22 Movimiento - Clave de oficina origen:0418 - ... - Importe:00000000004599 (45.99) - ... - Registro:23 Concepto complementario - Concepto 1:COMPRA EN CAFETERÍA LA ESPAÑOLA
+year      : 2026
+month     : SEPTIEMBRE
+importe   : -45.99
+plainLine : Registro:22 Movimiento - Clave de oficina origen:0418 - ... - Importe:00000000004599 (45.99) - ... - Registro:23 Concepto complementario - Concepto 1:COMPRA EN CAFETERÍA LA ESPAÑOLA
 ```
 
 - **plainLine** is the whole movement as one line: the movement record (`22`) followed by the
@@ -47,7 +54,7 @@ Movement 1
   one. A zero amount has no sign.
 
 Records that are not movements (account header and footer, end of file) are read and parsed, but
-are not printed, because they are not movements. The file is read as ISO-8859-1, the charset banks
+do not become movements. The file is read as ISO-8859-1, the charset banks
 use for it.
 
 `MovementLine.matchPattern(definition)` tells whether the movement matches a definition: one or
@@ -70,15 +77,7 @@ of the three values empty are ignored; extra columns are ignored too. It is read
 the charset Excel writes CSV files with in Spanish Windows. There is a sample in
 `src/test/resources/definitions.csv`.
 
-Every line read becomes a `DefinitionForCategorySubcategory`, and they are printed after the
-movements:
-
-```
-Definition 2
-  category    : Ocio;y cultura
-  subcategory : Restaurantes
-  definition  : *CAFETERIA*
-```
+Every line read becomes a `DefinitionForCategorySubcategory`.
 
 ### The result file and the log
 
@@ -144,7 +143,7 @@ model/                 MovementLine (the bean of a movement), MovementLineExtrac
                        DefinitionForCategorySubcategory, DefinitionCsvReader, CsvLineSplitter
                        MovementCategorizer (movement -> category), Categorization, CategorizedMovement,
                        ResultRowAggregator (adds up the movements of a group), ResultRow
-printer/               RecordLineFormatter (the plain line), MovementLinePrinter, DefinitionPrinter
+printer/               RecordLineFormatter (the plain line of a movement)
 writer/                ResultCsvWriter, LogWriter, CsvLineJoiner, TextFileWriter
 ```
 

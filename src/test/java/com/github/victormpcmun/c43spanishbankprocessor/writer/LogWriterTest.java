@@ -35,6 +35,17 @@ class LogWriterTest {
     }
 
     @Test
+    void anErrorIsWrittenWithItsWholeStackTrace() throws IOException {
+        Path file = tempDir.resolve("process.log");
+
+        writer.writeError(file, new IllegalStateException("something went wrong"));
+
+        String log = Files.readString(file, TextFileWriter.CHARSET);
+        assertTrue(log.startsWith("java.lang.IllegalStateException: something went wrong"));
+        assertTrue(log.contains("at com.github.victormpcmun.c43spanishbankprocessor.writer.LogWriterTest"));
+    }
+
+    @Test
     void theFileIsWrittenEvenWhenEveryMovementFoundItsCategory() throws IOException {
         Path file = tempDir.resolve("nested/process.log");
 
