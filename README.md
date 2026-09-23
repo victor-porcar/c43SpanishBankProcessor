@@ -10,7 +10,7 @@ to be opened in Excel.
 ### Usage
 
 ```
-java -jar dist/c43SpanishBankProcessor.jar <C43_FILE> <RESULT_PATH> <DEFINITION_PATH> <LOG_PATH> <DEFAULT_CATEGORY>
+java -jar dist/c43SpanishBankProcessor.jar <C43_FILE> <RESULT_PATH> <DEFINITION_PATH> <LOG_PATH>
 ```
 
 The jar is in the repository, so it can be used right after cloning or pulling, without
@@ -20,8 +20,6 @@ building the project.
 - **RESULT_PATH** is the CSV the result is written to (see below).
 - **DEFINITION_PATH** is the CSV with the categories (see below).
 - **LOG_PATH** is the file where the movements that match no category are written.
-- **DEFAULT_CATEGORY** is the category given to the movements that match no category, written as
-  `CATEGORY;SUBCATEGORY`, for example `"SIN CLASIFICAR;REVISAR"`. Both parts are mandatory.
 
 Both files are written on every run, replacing what was there before, and their missing
 directories are created.
@@ -58,8 +56,7 @@ plainLine : Registro:22 Movimiento - Clave de oficina origen:0418 - ... - Import
   one. A zero amount has no sign.
 
 Records that are not movements (account header and footer, end of file) are read and parsed, but
-do not become movements. The file is read as ISO-8859-1, the charset banks
-use for it.
+do not become movements. The file is read as ISO-8859-1, the charset banks use for it.
 
 `MovementLine.matchPattern(definition)` tells whether the movement matches a definition: one or
 more patterns separated by `|`, where `*` stands for zero or more characters of any kind and the
@@ -73,6 +70,15 @@ movements belong to them.
 ```
 Alimentacion;Supermercado;*MERCADONA*|*CARREFOUR*
 "Ocio;y cultura";Restaurantes;*CAFETERIA*
+```
+
+The line whose definition is exactly `***` is special: it gives the **default category**, the one
+taken by the movements that match no other line. It is left out of the matching, since `***` would
+match every movement. The file needs one of those lines, otherwise the process stops with an
+error; when there are several, the first one is used.
+
+```
+SIN CLASIFICAR;REVISAR;***
 ```
 
 A value may be written between double quotes when it holds a `;`, and inside a quoted value two
@@ -102,8 +108,9 @@ the cents are exact. The groups keep the order in which they first appear.
 It is written in windows-1252 with `;` as separator, and a value holding a `;` or a double quote
 is written between double quotes, so Excel reads it back as it was.
 
-A movement matching no category at all takes the default category given in the command line, so
-every movement is in the result, and is written to the log file as well, one line each:
+A movement matching no category at all takes the default category, the `***` line of the
+categories CSV, so every movement is in the result, and is written to the log file as well, one
+line each:
 
 ```
 NO CATEGORY MATCHES IT, the default one was used: year=2026 month=SEPTIEMBRE importe=45.99 line=Registro:22 Movimiento - ...
@@ -142,11 +149,12 @@ It runs the tests and leaves the executable jar, with all its dependencies insid
 
 ```
 C43SpanishBankProcessor    entry point
-Arguments              the paths and the default category of the command line
+Arguments              the four paths of the command line
 layout/                RecordType (the C43 records and their fields), FieldDefinition, FieldType
 parser/                C43FileReader, C43LineParser, ParsedRecord, ParsedField, FieldInterpreter,
                        MovementGrouper and RecordGroup (a movement with its 23/24 records)
 model/                 MovementLine (the bean of a movement), MovementLineExtractor, WildcardPattern,
+                       CategoryDefinitions (the categories and the default one),
                        DefinitionForCategorySubcategory, DefinitionCsvReader, CsvLineSplitter
                        MovementCategorizer (movement -> category), Categorization, CategorizedMovement,
                        ResultRowAggregator (adds up the movements of a group), ResultRow

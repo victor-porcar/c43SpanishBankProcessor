@@ -1,8 +1,8 @@
 package com.github.victormpcmun.c43spanishbankprocessor;
 
 import com.github.victormpcmun.c43spanishbankprocessor.model.Categorization;
+import com.github.victormpcmun.c43spanishbankprocessor.model.CategoryDefinitions;
 import com.github.victormpcmun.c43spanishbankprocessor.model.DefinitionCsvReader;
-import com.github.victormpcmun.c43spanishbankprocessor.model.DefinitionForCategorySubcategory;
 import com.github.victormpcmun.c43spanishbankprocessor.model.MovementCategorizer;
 import com.github.victormpcmun.c43spanishbankprocessor.model.MovementLine;
 import com.github.victormpcmun.c43spanishbankprocessor.model.MovementLineExtractor;
@@ -60,10 +60,10 @@ public final class C43SpanishBankProcessor {
 
     private static void process(Arguments arguments) {
         List<MovementLine> movements = movementsOf(arguments.c43File());
-        List<DefinitionForCategorySubcategory> definitions =
-                new DefinitionCsvReader().read(arguments.definitionPath());
-        Categorization categorization =
-                new MovementCategorizer().categorize(movements, definitions, arguments.defaultCategory());
+        CategoryDefinitions definitions =
+                CategoryDefinitions.of(new DefinitionCsvReader().read(arguments.definitionPath()));
+        Categorization categorization = new MovementCategorizer()
+                .categorize(movements, definitions.categories(), definitions.defaultCategory());
         new ResultCsvWriter().write(arguments.resultPath(),
                 new ResultRowAggregator().aggregate(categorization.rows()));
         new LogWriter().write(arguments.logPath(), categorization.movementsWithoutCategory());

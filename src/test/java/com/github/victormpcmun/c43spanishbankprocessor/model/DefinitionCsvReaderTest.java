@@ -18,7 +18,7 @@ class DefinitionCsvReaderTest {
     void readsOneDefinitionPerCompleteLine() {
         List<DefinitionForCategorySubcategory> definitions = reader.read(csv());
 
-        assertEquals(List.of("Alimentacion", "Ocio;y cultura", "Nomina", "Comillas", "Vivienda"),
+        assertEquals(List.of("Alimentacion", "Ocio;y cultura", "Nomina", "Comillas", "Vivienda", "SIN CLASIFICAR"),
                 definitions.stream().map(DefinitionForCategorySubcategory::getCategory).toList());
     }
 
