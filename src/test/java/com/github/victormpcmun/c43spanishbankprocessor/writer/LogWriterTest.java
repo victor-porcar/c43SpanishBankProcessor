@@ -23,7 +23,7 @@ class LogWriterTest {
     void writesOneLinePerMovementWithoutCategory() throws IOException {
         Path file = tempDir.resolve("process.log");
 
-        writer.write(file, List.of(new MovementLine("2026", "JULIO", "45.99", "Registro:22 Movimiento - Importe:x")));
+        writer.write(file, List.of(), List.of(new MovementLine("2026", "JULIO", "45.99", "Registro:22 Movimiento - Importe:x")));
 
         List<String> lines = Files.readAllLines(file, TextFileWriter.CHARSET);
         assertEquals(1, lines.size());
@@ -32,6 +32,21 @@ class LogWriterTest {
         assertTrue(lines.get(0).contains("month=JULIO"));
         assertTrue(lines.get(0).contains("importe=45.99"));
         assertTrue(lines.get(0).endsWith("line=Registro:22 Movimiento - Importe:x"));
+    }
+
+    @Test
+    void writesTheDuplicatesFirstAndThenTheOnesWithoutCategory() throws IOException {
+        Path file = tempDir.resolve("process.log");
+
+        writer.write(file,
+                List.of(new MovementLine("2026", "JULIO", "-10.0", "repeated movement")),
+                List.of(new MovementLine("2026", "JULIO", "-20.0", "movement with no category")));
+
+        List<String> lines = Files.readAllLines(file, TextFileWriter.CHARSET);
+        assertEquals(2, lines.size());
+        assertTrue(lines.get(0).startsWith("DUPLICATED MOVEMENT, left out of the result:"));
+        assertTrue(lines.get(0).endsWith("line=repeated movement"));
+        assertTrue(lines.get(1).startsWith("NO CATEGORY MATCHES IT, the default one was used:"));
     }
 
     @Test
@@ -49,7 +64,7 @@ class LogWriterTest {
     void theFileIsWrittenEvenWhenEveryMovementFoundItsCategory() throws IOException {
         Path file = tempDir.resolve("nested/process.log");
 
-        writer.write(file, List.of());
+        writer.write(file, List.of(), List.of());
 
         assertTrue(Files.exists(file));
         assertEquals(List.of(), Files.readAllLines(file, TextFileWriter.CHARSET));

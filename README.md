@@ -24,7 +24,8 @@ building the project.
 
   Joining statements needs nothing to be removed from them: the records that are not movements
   (the `11` header of each file, the `33` footer of each account and the final `88`) simply give
-  no movement. Mind that reading the same period twice would count its movements twice.
+  no movement. Statements covering the same days can be read together: a movement repeating one
+  already read is left out of the result and written to the log (see below).
 - **RESULT_PATH** is the CSV the result is written to (see below).
 - **DEFINITION_PATH** is the CSV with the categories (see below).
 - **LOG_PATH** is the file where the movements that match no category are written.
@@ -126,6 +127,15 @@ NO CATEGORY MATCHES IT, the default one was used: year=2026 month=SEPTIEMBRE imp
 
 That way the amounts always add up, and the log tells which movements still need a category.
 
+Before all that, a movement that repeats one already read is left out, which is what happens when
+two statements cover the same days. Two movements are the same when their whole line is, that is
+every field of the movement and of the records that complete it: dates, amount, concepts and both
+references. The first one is kept and the others go to the log:
+
+```
+DUPLICATED MOVEMENT, left out of the result: year=2026 month=FEBRERO importe=-10.5 line=Registro:22 Movimiento - ...
+```
+
 ### The C43 format
 
 Every line has 80 characters and starts with its record type:
@@ -165,6 +175,7 @@ parser/                C43Files (the files named or matched by wildcards), C43Fi
 model/                 MovementLine (the bean of a movement), MovementLineExtractor, WildcardPattern,
                        CategoryDefinitions (the categories and the default one),
                        DefinitionForCategorySubcategory, DefinitionCsvReader, CsvLineSplitter
+                       MovementDeduplicator (leaves out repeated movements), Deduplication,
                        MovementCategorizer (movement -> category), Categorization, CategorizedMovement,
                        ResultRowAggregator (adds up the movements of a group), ResultRow
 printer/               RecordLineFormatter (the plain line of a movement)
