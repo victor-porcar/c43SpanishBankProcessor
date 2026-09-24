@@ -42,6 +42,18 @@ class C43FileReaderTest {
     }
 
     @Test
+    void severalFilesAreReadAsIfTheyWereJoinedTogether() {
+        List<ParsedRecord> records = reader.read(List.of(sample(), sample()));
+
+        List<ParsedRecord> single = reader.read(sample());
+        assertEquals(single.size() * 2, records.size());
+        assertEquals(1, records.get(0).lineNumber());
+        assertEquals(9, records.get(single.size()).lineNumber());
+        assertEquals(2, records.stream().filter(record -> record.type().orElseThrow() == ACCOUNT_HEADER).count());
+        assertEquals(4, records.stream().filter(record -> record.type().orElseThrow() == MOVEMENT).count());
+    }
+
+    @Test
     void aMissingFileIsReported() {
         assertThrows(C43Exception.class, () -> reader.read(Path.of("does-not-exist.c43")));
     }

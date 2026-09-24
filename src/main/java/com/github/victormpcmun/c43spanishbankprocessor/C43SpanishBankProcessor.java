@@ -8,6 +8,7 @@ import com.github.victormpcmun.c43spanishbankprocessor.model.MovementLine;
 import com.github.victormpcmun.c43spanishbankprocessor.model.MovementLineExtractor;
 import com.github.victormpcmun.c43spanishbankprocessor.model.ResultRowAggregator;
 import com.github.victormpcmun.c43spanishbankprocessor.parser.C43FileReader;
+import com.github.victormpcmun.c43spanishbankprocessor.parser.C43Files;
 import com.github.victormpcmun.c43spanishbankprocessor.parser.C43LineParser;
 import com.github.victormpcmun.c43spanishbankprocessor.parser.MovementGrouper;
 import com.github.victormpcmun.c43spanishbankprocessor.parser.RecordGroup;
@@ -59,7 +60,7 @@ public final class C43SpanishBankProcessor {
     }
 
     private static void process(Arguments arguments) {
-        List<MovementLine> movements = movementsOf(arguments.c43File());
+        List<MovementLine> movements = movementsOf(C43Files.matchingAll(arguments.c43Files()));
         CategoryDefinitions definitions =
                 CategoryDefinitions.of(new DefinitionCsvReader().read(arguments.definitionPath()));
         Categorization categorization = new MovementCategorizer()
@@ -69,10 +70,10 @@ public final class C43SpanishBankProcessor {
         new LogWriter().write(arguments.logPath(), categorization.movementsWithoutCategory());
     }
 
-    private static List<MovementLine> movementsOf(Path file) {
+    private static List<MovementLine> movementsOf(List<Path> files) {
         MovementLineExtractor extractor = new MovementLineExtractor();
         RecordLineFormatter formatter = new RecordLineFormatter();
-        List<RecordGroup> groups = new MovementGrouper().group(new C43FileReader(new C43LineParser()).read(file));
+        List<RecordGroup> groups = new MovementGrouper().group(new C43FileReader(new C43LineParser()).read(files));
         return groups.stream()
                 .map(formatter::format)
                 .map(extractor::extract)

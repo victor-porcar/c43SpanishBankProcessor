@@ -10,13 +10,21 @@ to be opened in Excel.
 ### Usage
 
 ```
-java -jar dist/c43SpanishBankProcessor.jar <C43_FILE> <RESULT_PATH> <DEFINITION_PATH> <LOG_PATH>
+java -jar dist/c43SpanishBankProcessor.jar <C43_FILES> <RESULT_PATH> <DEFINITION_PATH> <LOG_PATH>
 ```
 
 The jar is in the repository, so it can be used right after cloning or pulling, without
 building the project.
 
-- **C43_FILE** is the bank statement to read.
+- **C43_FILES** is the bank statement to read. It may hold wildcards in the file name, such as
+  `"D:\C43\originales\*.txt"` or `"D:\C43\originales\*.*"`: every file of that directory whose
+  name matches is then read, one after another in the order of their names, as if they were a
+  single statement. Several files may also be given one after another. Subdirectories are not
+  looked into, and a pattern matching no file stops the process with an error.
+
+  Joining statements needs nothing to be removed from them: the records that are not movements
+  (the `11` header of each file, the `33` footer of each account and the final `88`) simply give
+  no movement. Mind that reading the same period twice would count its movements twice.
 - **RESULT_PATH** is the CSV the result is written to (see below).
 - **DEFINITION_PATH** is the CSV with the categories (see below).
 - **LOG_PATH** is the file where the movements that match no category are written.
@@ -149,9 +157,10 @@ It runs the tests and leaves the executable jar, with all its dependencies insid
 
 ```
 C43SpanishBankProcessor    entry point
-Arguments              the four paths of the command line
+Arguments              the C43 files and the three paths of the command line
 layout/                RecordType (the C43 records and their fields), FieldDefinition, FieldType
-parser/                C43FileReader, C43LineParser, ParsedRecord, ParsedField, FieldInterpreter,
+parser/                C43Files (the files named or matched by wildcards), C43FileReader, C43LineParser,
+                       ParsedRecord, ParsedField, FieldInterpreter,
                        MovementGrouper and RecordGroup (a movement with its 23/24 records)
 model/                 MovementLine (the bean of a movement), MovementLineExtractor, WildcardPattern,
                        CategoryDefinitions (the categories and the default one),

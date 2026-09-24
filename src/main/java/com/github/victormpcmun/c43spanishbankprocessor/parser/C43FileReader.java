@@ -7,12 +7,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
- * Reads a C43 file and parses every non-blank line. Banks write these files in ISO-8859-1,
- * which keeps accents and "ñ" readable.
+ * Reads C43 files and parses every non-blank line. Several files are read one after another as
+ * if they were a single one: the records that are not movements (account header, account footer
+ * and end of file) simply give no movement, so their headers and footers do no harm.
+ * Banks write these files in ISO-8859-1, which keeps accents and "ñ" readable.
  */
 public class C43FileReader {
 
@@ -25,11 +27,22 @@ public class C43FileReader {
     }
 
     public List<ParsedRecord> read(Path file) {
-        List<String> lines = linesOf(file);
-        return IntStream.range(0, lines.size())
-                .filter(index -> !lines.get(index).isBlank())
-                .mapToObj(index -> lineParser.parse(index + 1, lines.get(index)))
-                .toList();
+        return read(List.of(file));
+    }
+
+    /** Every line of every file, numbered from 1 as if the files were joined together. */
+    public List<ParsedRecord> read(List<Path> files) {
+        List<ParsedRecord> records = new ArrayList<>();
+        int lineNumber = 0;
+        for (Path file : files) {
+            for (String line : linesOf(file)) {
+                lineNumber++;
+                if (!line.isBlank()) {
+                    records.add(lineParser.parse(lineNumber, line));
+                }
+            }
+        }
+        return List.copyOf(records);
     }
 
     private static List<String> linesOf(Path file) {
